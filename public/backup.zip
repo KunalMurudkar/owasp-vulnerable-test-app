@@ -1,0 +1,8 @@
+PKZIP_FAKE_BACKUP_FILE
+This is a fake backup file to demonstrate backup file exposure vulnerability.
+In a real scenario, this would contain sensitive data like database dumps,
+configuration files, or source code.
+
+⚠️ VULNERABILITY: Backup Files Exposure (OWASP A05)
+This file should not be publicly accessible.
+

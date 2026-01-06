@@ -1,0 +1,7 @@
+SQLITE_BACKUP_FILE_PLACEHOLDER
+This is a fake database backup file to demonstrate backup file exposure vulnerability.
+
+⚠️ VULNERABILITY: Backup Files Exposure (OWASP A05)
+Database backup files should never be publicly accessible as they contain
+sensitive user data, passwords, and other confidential information.
+

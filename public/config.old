@@ -1,0 +1,12 @@
+# Old Configuration File
+# This file contains old configuration settings
+
+DATABASE_URL=sqlite://data/app.db
+SECRET_KEY=old_secret_key_12345
+ADMIN_PASSWORD=old_admin_password
+API_KEY=old_api_key_abcdef123456
+
+⚠️ VULNERABILITY: Backup Files Exposure (OWASP A05)
+Old configuration files often contain sensitive information like API keys,
+passwords, and database credentials that should not be publicly accessible.
+

@@ -1,0 +1,8 @@
+Sample data file for testing file inclusion vulnerabilities.
+
+This file contains some sample data that can be accessed through the file viewer endpoint.
+
+Line 1: Sample data entry
+Line 2: Another data entry
+Line 3: More sample content
+

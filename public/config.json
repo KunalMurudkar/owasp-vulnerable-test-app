@@ -1,0 +1,9 @@
+{
+  "app_name": "Acme Feedback Portal",
+  "version": "1.0.0",
+  "debug": true,
+  "database": "sqlite://data/app.db",
+  "api_key": "sk_test_1234567890abcdef",
+  "admin_email": "admin@acme.com"
+}
+
