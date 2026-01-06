@@ -7,7 +7,7 @@ const execAsync = promisify(exec)
 /**
  * VULNERABLE DIAGNOSTICS API
  * 
- * ⚠️ VULNERABILITY: Command Injection - OWASP A03
+ * ⚠️ VULNERABILITY 1: Command Injection - OWASP A03
  * 
  * This endpoint executes shell commands directly:
  * - User input passed directly to exec()
@@ -15,7 +15,13 @@ const execAsync = promisify(exec)
  * - Allows command chaining (; && || |)
  * - No whitelist of allowed commands
  * 
- * Scanner should detect: exec
+ * ⚠️ VULNERABILITY 2: Security Logging & Monitoring Failures - OWASP A09
+ * - No logging of command execution
+ * - No logging of command parameters
+ * - No alerts for suspicious commands
+ * - No audit trail
+ * 
+ * Scanner should detect: exec, security_logging
  * 
  * Example attacks:
  * - host=127.0.0.1; ls
@@ -47,11 +53,20 @@ export async function GET(request: NextRequest) {
         timeout: 5000,
       })
 
+      // ⚠️ VULNERABILITY: Security Logging Failure
+      // Should log: command executed, user, IP, timestamp, output
+      // Should alert on suspicious commands (ls, cat, etc.)
+      // But we log nothing - intentionally insecure
+
       return NextResponse.json({
         output: stdout || stderr || 'Command executed successfully',
       })
     } catch (error: any) {
       // ⚠️ VULNERABILITY: Error messages may leak information
+      // ⚠️ VULNERABILITY: Security Logging Failure
+      // Should log failed command execution attempts
+      // But we log nothing
+      
       return NextResponse.json({
         output: error.stdout || error.stderr || error.message,
       })

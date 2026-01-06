@@ -5,7 +5,7 @@ import { join } from 'path'
 /**
  * VULNERABLE FILE VIEWER API
  * 
- * ⚠️ VULNERABILITY: Local File Inclusion (LFI) / Path Traversal - OWASP A05
+ * ⚠️ VULNERABILITY 1: Local File Inclusion (LFI) / Path Traversal - OWASP A05
  * 
  * This endpoint reads files directly from the filesystem:
  * - No path validation or sanitization
@@ -13,7 +13,13 @@ import { join } from 'path'
  * - No whitelist of allowed files
  * - Direct file system access based on user input
  * 
- * Scanner should detect: file
+ * ⚠️ VULNERABILITY 2: Security Logging & Monitoring Failures - OWASP A09
+ * - No logging of file access
+ * - No logging of path traversal attempts
+ * - No alerts for suspicious file access
+ * - No audit trail
+ * 
+ * Scanner should detect: file, security_logging
  * 
  * Example attack: ?file=../../etc/passwd
  * Example attack: ?file=../../package.json
@@ -51,6 +57,12 @@ export async function GET(request: NextRequest) {
 
     // ⚠️ VULNERABILITY: Reads any file without restrictions
     const content = readFileSync(fullPath, 'utf-8')
+
+    // ⚠️ VULNERABILITY: Security Logging Failure
+    // Should log: file accessed, path, user, IP, timestamp
+    // Should alert on path traversal attempts (../)
+    // Should alert on access to sensitive files
+    // But we log nothing - intentionally insecure
 
     return NextResponse.json({ content })
   } catch (error: any) {

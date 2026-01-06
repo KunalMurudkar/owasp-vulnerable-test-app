@@ -11,7 +11,7 @@ This application serves as a security testing target for automated vulnerability
 - **Small and fast to scan** - Minimal dependencies and simple structure
 - **Realistic** - Looks like a legitimate small SaaS/startup website
 - **Clearly documented** - Each vulnerability is marked and explained
-- **Easy to deploy** - Vercel-compatible Next.js application
+- **Easy to deploy** - Vercel-compatible Next.js application (pure JavaScript, no native dependencies)
 - **Easy to understand** - Clean code structure with inline comments
 
 ## Deployment
@@ -66,14 +66,14 @@ vercel
 │   ├── diagnostics/     # Diagnostics page (Command Injection)
 │   └── admin/            # Admin panel (Hidden Paths)
 ├── lib/
-│   └── db.ts            # Database setup (SQLite, vulnerable queries)
+│   ├── db.ts            # Database wrapper (in-memory, vulnerable queries)
+│   └── fakeDb.ts        # In-memory database simulation (pure JavaScript)
 ├── public/              # Static files (including backup files)
-└── data/               # SQLite database (created at runtime)
 ```
 
 ## Implemented Vulnerabilities
 
-This application implements the following OWASP Top 10 vulnerabilities:
+This application implements **all 10 OWASP Top 10 vulnerability categories**:
 
 ### 1. Cross-Site Scripting (XSS) - OWASP A03
 
@@ -233,6 +233,60 @@ This application implements the following OWASP Top 10 vulnerabilities:
 
 ---
 
+### 9. Broken Access Control - OWASP A01
+
+**Locations:**
+- `/api/admin/delete` - Delete endpoint (no authorization)
+- `/api/internal/config` - Internal config endpoint (no authentication)
+- `/admin` - Admin panel (no access control)
+
+**Vulnerability:**
+- Sensitive endpoints have no authentication checks
+- No authorization or role validation
+- No session state validation
+- Accessible directly via URL to anyone
+- Admin operations can be performed by unauthenticated users
+
+**Test Cases:**
+- Access: `POST /api/admin/delete` with `{type: 'user', id: 1}`
+- Access: `GET /api/internal/config` (exposes sensitive config)
+- Access: `/admin` without authentication
+- Perform admin operations without being logged in
+
+**Scanner Detection:** `broken_access_control`
+
+---
+
+### 10. Security Logging & Monitoring Failures - OWASP A09
+
+**Locations:**
+- `/logs` - Fake logs page (no real logging)
+- All API endpoints - No logging implemented
+
+**Vulnerability:**
+- No logging of critical security events:
+  - Login attempts (successful or failed)
+  - Command execution
+  - File access
+  - Admin operations
+  - Delete operations
+  - Configuration changes
+- No audit trail
+- No security alerts
+- No monitoring of suspicious activity
+- Fake logs page shows empty/outdated information
+
+**Test Cases:**
+- Attempt multiple failed logins - check `/logs` (nothing logged)
+- Execute commands via diagnostics - check `/logs` (nothing logged)
+- Access sensitive files - check `/logs` (nothing logged)
+- Perform admin operations - check `/logs` (nothing logged)
+- Access: `/logs` to see empty/fake logs
+
+**Scanner Detection:** `security_logging`
+
+---
+
 ## Default Credentials
 
 ⚠️ **These are intentionally weak credentials for testing:**
@@ -245,7 +299,7 @@ This application implements the following OWASP Top 10 vulnerabilities:
 Example Wapiti scan command:
 
 ```bash
-wapiti -u http://localhost:3000 -m xss,sql,csrf,file,exec,brute_login_form,backup,buster -f json -o wapiti_report.json
+wapiti -u http://localhost:3000 -m xss,sql,csrf,file,exec,brute_login_form,backup,buster,broken_access_control,security_logging -f json -o wapiti_report.json
 ```
 
 ## Security Best Practices (NOT Implemented)
@@ -264,6 +318,8 @@ This application intentionally **does NOT** implement:
 - ❌ Command input sanitization
 - ❌ File access restrictions
 - ❌ Error message sanitization
+- ❌ Security logging and monitoring
+- ❌ Access control and authorization
 
 ## Legal and Ethical Notice
 

@@ -57,6 +57,17 @@ The application will be available at `http://localhost:3000`
   - `/internal`
   - `/debug`
 
+### 9. Broken Access Control
+- Access admin delete endpoint: `POST /api/admin/delete` with `{type: 'user', id: 1}`
+- Access internal config: `GET /api/internal/config` (exposes sensitive config)
+- Access `/admin` without authentication
+
+### 10. Security Logging & Monitoring Failures
+- Access `/logs` to see empty/fake logs
+- Attempt failed logins - check `/logs` (nothing logged)
+- Execute commands - check `/logs` (nothing logged)
+- Perform admin operations - check `/logs` (nothing logged)
+
 ## Default Credentials
 
 - **admin** / **admin123**
@@ -70,7 +81,7 @@ pip install wapiti3
 
 # Run scan
 wapiti -u http://localhost:3000 \
-  -m xss,sql,csrf,file,exec,brute_login_form,backup,buster \
+  -m xss,sql,csrf,file,exec,brute_login_form,backup,buster,broken_access_control,security_logging \
   -f json -o report.json
 ```
 
@@ -86,5 +97,5 @@ vercel
 # Follow the prompts
 ```
 
-**Note:** The SQLite database will be created automatically on first request. For production-like testing, consider using Vercel's file system or an external database service (though this app intentionally avoids external services for simplicity).
+**Note:** This application uses an in-memory database (pure JavaScript) for Vercel compatibility. Data is reset on each serverless function invocation. No native dependencies are required.
 

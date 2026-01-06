@@ -6,15 +6,18 @@ import Navbar from '@/components/Navbar'
 /**
  * VULNERABLE ADMIN PANEL
  * 
- * ⚠️ VULNERABILITY: Hidden Paths / Forced Browsing - OWASP A05
- * 
- * This admin panel is:
- * - Not linked from main navigation (hidden path)
+ * ⚠️ VULNERABILITY 1: Broken Access Control - OWASP A01
  * - No authentication checks
+ * - No authorization checks
+ * - No role validation
+ * - Accessible to anyone
+ * 
+ * ⚠️ VULNERABILITY 2: Hidden Paths / Forced Browsing - OWASP A05
+ * - Not linked from main navigation (hidden path)
  * - Accessible to anyone who knows the URL
  * - Contains sensitive information
  * 
- * Scanner should detect: buster
+ * Scanner should detect: broken_access_control, buster
  */
 
 export default function AdminPage() {

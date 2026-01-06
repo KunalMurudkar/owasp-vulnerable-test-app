@@ -14,7 +14,13 @@ import db from '@/lib/db'
  * - No account lockout
  * - Different error messages for user vs password
  * 
- * Scanner should detect: sql, brute_login_form
+ * ⚠️ VULNERABILITY 3: Security Logging & Monitoring Failures (OWASP A09)
+ * - No logging of login attempts (successful or failed)
+ * - No logging of brute-force attempts
+ * - No alerts for suspicious activity
+ * - No audit trail
+ * 
+ * Scanner should detect: sql, brute_login_form, security_logging
  */
 
 export async function POST(request: NextRequest) {
@@ -47,6 +53,10 @@ export async function POST(request: NextRequest) {
       // ⚠️ VULNERABILITY: Check if user exists first (information disclosure)
       const userCheck = db.prepare(`SELECT * FROM users WHERE username = '${username}'`).get()
       
+      // ⚠️ VULNERABILITY: Security Logging Failure
+      // Should log failed login attempt: username, IP, timestamp, reason
+      // But we log nothing - intentionally insecure
+      
       if (!userCheck) {
         return NextResponse.json(
           { success: false, error: 'User not found' },
@@ -59,6 +69,11 @@ export async function POST(request: NextRequest) {
         )
       }
     }
+
+    // ⚠️ VULNERABILITY: Security Logging Failure
+    // Should log successful login: username, IP, timestamp
+    // Should alert on admin login
+    // But we log nothing - intentionally insecure
 
     return NextResponse.json({
       success: true,
