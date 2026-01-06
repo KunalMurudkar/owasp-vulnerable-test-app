@@ -167,7 +167,7 @@ class FakeDatabase {
    * 
    * Parses SELECT queries and intentionally allows injection patterns.
    */
-  private handleSelect(query: string, mode: 'single' | 'all'): any {
+  private handleSelect(query: string, mode: 'single' | 'all' | 'run'): any {
     const upperQuery = query.toUpperCase();
 
     // Users table
@@ -184,7 +184,7 @@ class FakeDatabase {
           // ⚠️ VULNERABILITY: Allows SQL injection patterns
           if (username.includes("' OR '1'='1") || username.includes("' OR '1'='1' --")) {
             // Return all users (SQL injection successful)
-            return mode === 'single' ? results[0] : results;
+            return mode === 'single' ? results[0] : mode === 'run' ? undefined : results;
           }
           
           // Check password if present
@@ -194,7 +194,7 @@ class FakeDatabase {
             
             // ⚠️ VULNERABILITY: Allows SQL injection in password
             if (password.includes("' OR '1'='1") || password.includes("' OR '1'='1' --")) {
-              return mode === 'single' ? results.find(u => u.username === username) || results[0] : results;
+              return mode === 'single' ? results.find(u => u.username === username) || results[0] : mode === 'run' ? undefined : results;
             }
             
             results = results.filter(u => u.username === username && u.password === password);
@@ -208,10 +208,10 @@ class FakeDatabase {
       if (upperQuery.includes('UNION SELECT')) {
         // Return admin user (common injection pattern)
         const admin = this.users.find(u => u.username === 'admin');
-        return mode === 'single' ? admin : admin ? [admin] : [];
+        return mode === 'single' ? admin : mode === 'run' ? undefined : (admin ? [admin] : []);
       }
 
-      return mode === 'single' ? (results[0] || null) : results;
+      return mode === 'single' ? (results[0] || null) : mode === 'run' ? undefined : results;
     }
 
     // Feedback table
@@ -228,7 +228,7 @@ class FakeDatabase {
           
           // ⚠️ VULNERABILITY: SQL Injection in LIKE clause
           if (searchTerm.includes("' OR '1'='1")) {
-            return mode === 'single' ? results[0] : results;
+            return mode === 'single' ? results[0] : mode === 'run' ? undefined : results;
           }
           
           results = results.filter(f => 
@@ -251,15 +251,15 @@ class FakeDatabase {
         results = results.slice(0, limit);
       }
 
-      return mode === 'single' ? (results[0] || null) : results;
+      return mode === 'single' ? (results[0] || null) : mode === 'run' ? undefined : results;
     }
 
     // Settings table
     if (upperQuery.includes('FROM SETTINGS') || upperQuery.includes('FROM settings')) {
-      return mode === 'single' ? (this.settings[0] || null) : [...this.settings];
+      return mode === 'single' ? (this.settings[0] || null) : mode === 'run' ? undefined : [...this.settings];
     }
 
-    return mode === 'all' ? [] : null;
+    return mode === 'all' ? [] : mode === 'run' ? undefined : null;
   }
 
   /**
